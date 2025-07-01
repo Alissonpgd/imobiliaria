@@ -25,8 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 
         try {
-            // AQUI ESTÁ A MUDANÇA: Chamamos nossa própria API!
-            const response = await fetch('/api/generate', { // A Vercel entende esse caminho
+            const response = await fetch('/api/generate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,19 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ prompt: prompt }),
             });
 
+            // AQUI ESTÁ A MUDANÇA: vamos capturar mais detalhes antes de dar erro.
             if (!response.ok) {
-                throw new Error('Falha na comunicação com a IA.');
+                // Vamos ler a resposta de erro do servidor para ver a mensagem
+                const errorBody = await response.json().catch(() => null); // Tenta ler o corpo do erro
+                const errorMessage = errorBody ? errorBody.error : 'O servidor não deu detalhes.';
+
+                // Lançamos um erro mais informativo
+                throw new Error(`Erro do Servidor: ${response.status} ${response.statusText}. Detalhes: ${errorMessage}`);
             }
 
             const data = await response.json();
             const descricaoGerada = data.descricao;
 
-            // Usamos .replace() para formatar o texto com quebras de linha no HTML
             resultadoIa.innerHTML = descricaoGerada.replace(/\n/g, '<br>');
 
         } catch (error) {
-            console.error('Erro ao gerar descrição:', error);
-            resultadoIa.innerText = 'Desculpe, não foi possível gerar a descrição no momento. Tente novamente.';
+            // Agora o console.error vai mostrar a mensagem completa que criamos
+            console.error('Erro detalhado ao gerar descrição:', error);
+            resultadoIa.innerText = 'Desculpe, houve um problema ao se comunicar com nosso servidor. Tente novamente.';
         }
     });
 });
