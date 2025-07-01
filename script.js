@@ -1,48 +1,45 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- SELEÇÃO DE ELEMENTOS GLOBAIS ---
+    // --- ELEMENTOS GLOBAIS ---
     const listaImoveisDiv = document.getElementById('lista-imoveis');
     const semImoveisAviso = document.getElementById('sem-imoveis-aviso');
 
-    // --- LÓGICA DO BANCO DE DADOS (LOCALSTORAGE) ---
+    // --- LÓGICA DO BANCO DE DADOS LOCAL (LOCALSTORAGE) ---
 
-    // Função para carregar imóveis do LocalStorage
     const carregarImoveis = () => {
         const imoveisJSON = localStorage.getItem('imoveisDB');
-        // Se não houver nada, retorna um array vazio. Senão, converte de JSON para objeto.
         return imoveisJSON ? JSON.parse(imoveisJSON) : [];
     };
 
-    // Função para salvar imóveis no LocalStorage
     const salvarImoveis = (imoveis) => {
-        // Converte o array de objetos para uma string JSON e salva.
         localStorage.setItem('imoveisDB', JSON.stringify(imoveis));
     };
 
-    // Função para renderizar os cards de imóveis na tela
     const renderizarImoveis = () => {
         const imoveis = carregarImoveis();
-        listaImoveisDiv.innerHTML = ''; // Limpa a lista atual
+        listaImoveisDiv.innerHTML = '';
 
         if (imoveis.length === 0) {
-            semImoveisAviso.classList.remove('d-none'); // Mostra o aviso
+            semImoveisAviso.classList.remove('d-none');
         } else {
-            semImoveisAviso.classList.add('d-none'); // Esconde o aviso
+            semImoveisAviso.classList.add('d-none');
+            // Ordena para que o mais novo apareça primeiro
+            imoveis.sort((a, b) => b.id - a.id);
+
             imoveis.forEach(imovel => {
-                // Cria o HTML do card para cada imóvel
                 const cardHTML = `
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100">
-                            <img src="${imovel.foto}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Foto de ${imovel.titulo}">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="${imovel.foto}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="Foto de ${imovel.titulo}">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title">${imovel.titulo}</h5>
-                                <p class="card-text text-muted">${imovel.bairro}, Campina Grande</p>
-                                <div class="d-flex justify-content-around my-3">
+                                <p class="card-text text-muted small">${imovel.bairro}, Campina Grande - PB</p>
+                                <div class="d-flex justify-content-around my-3 text-secondary">
                                     <span><i class="fas fa-bed"></i> ${imovel.quartos} Qts</span>
-                                    <span><i class="fas fa-bath"></i> 2 Banh.</span>
-                                    <span><i class="fas fa-car"></i> 2 Vagas</span>
+                                    <span><i class="fas fa-bath"></i> ${imovel.banheiros || 1} Banh.</span>
+                                    <span><i class="fas fa-car"></i> ${imovel.vagas || 1} Vaga(s)</span>
                                 </div>
-                                <p class="card-text small">${imovel.descricao.substring(0, 80)}...</p>
+                                <p class="card-text flex-grow-1">${imovel.descricao.substring(0, 100)}...</p>
                                 <a href="#" class="btn btn-primary mt-auto">Ver Detalhes</a>
                             </div>
                         </div>
@@ -59,13 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const formValidaCreci = document.getElementById('form-valida-creci');
     const inputCreci = document.getElementById('creci');
 
-    // O resto do seu código da ferramenta de IA continua aqui...
     const iaForm = document.getElementById('ia-form');
     const resultadoIaTexto = document.getElementById('resultado-ia-texto');
     const botoesAcaoIa = document.getElementById('botoes-acao-ia');
     const btnCopiar = document.getElementById('btn-copiar');
     const btnUsarDescricao = document.getElementById('btn-usar-descricao');
-    const spinner = '<i class="fas fa-spinner fa-spin"></i> Gerando descrição. Aguarde...';
+    const spinner = '<div class="d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-spin me-2"></i> Gerando descrição. Aguarde...</div>';
 
     const inputFotos = document.getElementById('fotosImovel');
     const previewFotosDiv = document.getElementById('preview-fotos');
@@ -81,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    inputFotos.addEventListener('change', () => { /* ... sua lógica de preview continua a mesma ... */
+    inputFotos.addEventListener('change', () => {
         previewFotosDiv.innerHTML = '';
-        arquivosDeFotos = Array.from(inputFotos.files).slice(0, 5); // Pega até 5 arquivos
+        arquivosDeFotos = Array.from(inputFotos.files).slice(0, 5);
 
         arquivosDeFotos.forEach((file) => {
             const reader = new FileReader();
@@ -101,63 +97,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     iaForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        // ... sua lógica de fetch para a IA continua a mesma ...
-        // ... no 'try' depois de receber a resposta da IA ...
+        botoesAcaoIa.classList.add('d-none');
+        resultadoIaTexto.innerHTML = spinner;
+
+        const tipoImovel = document.getElementById('tipoImovel').value;
+        const bairro = document.getElementById('bairro').value;
+        const quartos = document.getElementById('quartos').value;
+        const caracteristicas = document.getElementById('caracteristicas').value;
+
+        const prompt = `Crie uma descrição de anúncio imobiliário atraente e profissional para: ${tipoImovel} com ${quartos} quartos no bairro ${bairro} em Campina Grande - PB. Características especiais: ${caracteristicas}. O texto deve ter 3 parágrafos curtos.`;
+
         try {
-            const response = await fetch('/api/generate', { /* ... corpo do fetch ... */ });
-            if (!response.ok) { throw new Error('Erro do servidor'); }
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha na comunicação com a IA.');
+            }
+
             const data = await response.json();
             const descricaoGerada = data.descricao;
             resultadoIaTexto.innerHTML = descricaoGerada.replace(/\n/g, '<br>');
             botoesAcaoIa.classList.remove('d-none');
+
         } catch (error) {
-            // ... seu tratamento de erro ...
+            console.error('Erro detalhado:', error);
+            resultadoIaTexto.innerText = 'Desculpe, houve um problema ao gerar a descrição.';
         }
     });
 
-    btnCopiar.addEventListener('click', () => { /* ... sua lógica de copiar continua a mesma ... */ });
+    btnCopiar.addEventListener('click', () => {
+        const textoParaCopiar = resultadoIaTexto.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+        navigator.clipboard.writeText(textoParaCopiar).then(() => {
+            btnCopiar.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            setTimeout(() => { btnCopiar.innerHTML = '<i class="fas fa-copy"></i> Copiar Texto'; }, 2000);
+        });
+    });
 
-    // --- ATUALIZAÇÃO DA LÓGICA DO BOTÃO "USAR DESCRIÇÃO" ---
     btnUsarDescricao.addEventListener('click', () => {
         // 1. Coletar todos os dados do anúncio
         const tipoImovel = document.getElementById('tipoImovel').value;
         const bairro = document.getElementById('bairro').value;
         const quartos = document.getElementById('quartos').value;
-        const descricao = resultadoIaTexto.innerText; // Pega o texto puro
-        const fotoPrincipal = previewFotosDiv.querySelector('img') ? previewFotosDiv.querySelector('img').src : 'https://via.placeholder.com/400x250/ccc/808080?text=Sem+Foto';
+        const descricao = resultadoIaTexto.innerText;
+
+        // Pega a primeira imagem do preview ou uma imagem padrão
+        const primeiraImagem = previewFotosDiv.querySelector('img');
+        const fotoPrincipal = primeiraImagem ? primeiraImagem.src : 'https://via.placeholder.com/400x250/ccc/808080?text=Sem+Foto';
 
         if (!tipoImovel || !bairro || !quartos || !descricao) {
-            alert('Por favor, preencha todos os campos antes de salvar.');
+            alert('Por favor, preencha todos os campos antes de salvar o anúncio.');
             return;
         }
 
-        // 2. Criar um novo objeto de imóvel
+        // 2. Criar o novo objeto de imóvel
         const novoImovel = {
-            id: Date.now(), // ID único baseado no tempo
+            id: Date.now(), // ID único
             titulo: `${tipoImovel} no Bairro ${bairro}`,
             bairro: bairro,
             quartos: quartos,
             descricao: descricao,
             foto: fotoPrincipal,
+            // Adicione outros campos como banheiros, vagas, etc., se quiser
+            banheiros: 2,
+            vagas: 1
         };
 
-        // 3. Salvar no nosso "banco de dados"
+        // 3. Salvar no LocalStorage
         const imoveisAtuais = carregarImoveis();
-        imoveisAtuais.push(novoImovel); // Adiciona o novo imóvel ao array
-        salvarImoveis(imoveisAtuais); // Salva o array atualizado
+        imoveisAtuais.push(novoImovel);
+        salvarImoveis(imoveisAtuais);
 
-        // 4. Feedback e atualização da tela
-        alert('Anúncio publicado com sucesso no site!');
+        // 4. Feedback e limpeza do formulário
+        alert('Anúncio publicado com sucesso no painel de imóveis!');
         iaForm.reset();
         previewFotosDiv.innerHTML = '';
         resultadoIaTexto.innerHTML = '<p class="text-muted">Preencha todos os campos e clique em gerar.</p>';
         botoesAcaoIa.classList.add('d-none');
 
-        // 5. Re-renderizar a lista de imóveis para mostrar o novo anúncio
+        // 5. ATUALIZAR A LISTA NA TELA
         renderizarImoveis();
+
+        // Rola a tela para a seção de destaques para o usuário ver o resultado
+        document.getElementById('destaques').scrollIntoView({ behavior: 'smooth' });
     });
 
     // --- INICIALIZAÇÃO DA PÁGINA ---
-    // Renderiza os imóveis salvos assim que a página carregar
     renderizarImoveis();
 });
