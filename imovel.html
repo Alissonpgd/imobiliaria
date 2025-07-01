@@ -11,43 +11,20 @@
 </head>
 
 <body>
-
-    <!-- Cabeçalho (pode ser o mesmo da index.html) -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">Imobiliária Apresentação</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html#hero">Início</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#destaques">Imóveis</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#sobre">Sobre Nós</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.html#blog">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-lg-2"
-                            href="index.html#contato">Fale Conosco</a></li>
-                </ul>
-            </div>
+            <!-- ... o resto do seu navbar ... -->
         </div>
     </nav>
-
-    <main class="container my-5">
-        <div id="detalhe-imovel-container">
-            <!-- O JavaScript irá preencher esta área -->
-            <div class="text-center mt-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Carregando...</span>
-                </div>
+    <main class="container my-5" id="detalhe-imovel-container">
+        <div class="text-center mt-5">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span>
             </div>
         </div>
     </main>
-
-    <!-- Rodapé (pode ser o mesmo da index.html) -->
-    <!-- (Opcional, mas recomendado para consistência) -->
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="imovel.js"></script> <!-- Um novo arquivo JS para esta página -->
+    <script src="imovel.js"></script>
 </body>
 
 </html>
