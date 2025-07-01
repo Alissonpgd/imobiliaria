@@ -21,7 +21,8 @@ export default async function handler(req, res) {
         }
 
         // Inicializa o modelo Gemini
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        // LINHA NOVA (corrigida)
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
         // Gera o conteúdo com base no prompt
         const result = await model.generateContent(prompt);
