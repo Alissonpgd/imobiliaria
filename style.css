@@ -1,0 +1,58 @@
+:root {
+    /* Paleta de cores inspirada em confiança e modernidade */
+    --cor-primaria: #005f73;
+    /* Um azul-petróleo sóbrio */
+    --cor-secundaria: #ee9b00;
+    /* Um laranja/dourado para contraste e botões */
+    --cor-fundo: #f8f9fa;
+    --cor-texto: #212529;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    /* Uma fonte moderna e amigável - precisa importar ou usar uma padrão */
+}
+
+/* Estilizando o botão principal para ter mais destaque */
+.btn-primary {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+}
+
+.btn-primary:hover {
+    background-color: #004c5c;
+    border-color: #004c5c;
+}
+
+.btn-secondary {
+    background-color: var(--cor-secundaria);
+    border-color: var(--cor-secundaria);
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #d48a00;
+    border-color: #d48a00;
+}
+
+/* Seção Hero com imagem de fundo e overlay */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070') no-repeat center center;
+    background-size: cover;
+    padding: 100px 0;
+}
+
+/* Estilo para os cards de imóveis */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-price {
+    color: var(--cor-primaria);
+    font-weight: bold;
+}
